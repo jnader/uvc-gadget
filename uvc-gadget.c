@@ -1244,7 +1244,12 @@ static int uvc_video_reqbufs_userptr(struct uvc_device *dev, int nbufs)
                     memset(dev->dummy_buf[i].start + j * bpl, dev->color++, bpl);
 
             if (V4L2_PIX_FMT_MJPEG == dev->fcc)
+            {
                 memcpy(dev->dummy_buf[i].start, dev->imgdata, dev->imgsize);
+                cv::Mat img(dev->width, dev->height, CV_16U, dev->imgdata);
+                cv::imshow("window", img);
+                cv::waitKey(0);
+            }
         }
 
         dev->mem = dev->dummy_buf;
