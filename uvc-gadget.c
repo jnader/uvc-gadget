@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
+// #include <cstdlib>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -296,7 +297,7 @@ static int v4l2_reqbufs_mmap(struct v4l2_device *dev, int nbufs)
     }
 
     /* Map the buffers. */
-    dev->mem = calloc(req.count, sizeof dev->mem[0]);
+    dev->mem = static_cast<buffer*>(calloc(req.count, sizeof dev->mem[0]));
     if (!dev->mem) {
         printf("V4L2: Out of memory\n");
         ret = -ENOMEM;
@@ -688,7 +689,7 @@ static int v4l2_open(struct v4l2_device **v4l2, char *devname, struct v4l2_forma
         goto err;
     }
 
-    dev = calloc(1, sizeof *dev);
+    dev = static_cast<v4l2_device*>(calloc(1, sizeof *dev));
     if (dev == NULL) {
         ret = -ENOMEM;
         goto err;
@@ -851,7 +852,7 @@ static int uvc_open(struct uvc_device **uvc, char *devname)
         goto err;
     }
 
-    dev = calloc(1, sizeof *dev);
+    dev = static_cast<uvc_device*>(calloc(1, sizeof *dev));
     if (dev == NULL) {
         ret = -ENOMEM;
         goto err;
@@ -1134,7 +1135,7 @@ static int uvc_video_reqbufs_mmap(struct uvc_device *dev, int nbufs)
     }
 
     /* Map the buffers. */
-    dev->mem = calloc(rb.count, sizeof dev->mem[0]);
+    dev->mem = static_cast<buffer*>(calloc(rb.count, sizeof dev->mem[0]));
     if (!dev->mem) {
         printf("UVC: Out of memory\n");
         ret = -ENOMEM;
@@ -1212,7 +1213,7 @@ static int uvc_video_reqbufs_userptr(struct uvc_device *dev, int nbufs)
 
     if (dev->run_standalone) {
         /* Allocate buffers to hold dummy data pattern. */
-        dev->dummy_buf = calloc(rb.count, sizeof dev->dummy_buf[0]);
+        dev->dummy_buf = static_cast<buffer*>(calloc(rb.count, sizeof dev->dummy_buf[0]));
         if (!dev->dummy_buf) {
             printf("UVC: Out of memory\n");
             ret = -ENOMEM;
@@ -1243,7 +1244,12 @@ static int uvc_video_reqbufs_userptr(struct uvc_device *dev, int nbufs)
                     memset(dev->dummy_buf[i].start + j * bpl, dev->color++, bpl);
 
             if (V4L2_PIX_FMT_MJPEG == dev->fcc)
+            {
                 memcpy(dev->dummy_buf[i].start, dev->imgdata, dev->imgsize);
+                cv::Mat img(dev->width, dev->height, CV_16U, dev->imgdata);
+                cv::imshow("window", img);
+                cv::waitKey(0);
+            }
         }
 
         dev->mem = dev->dummy_buf;
@@ -1884,7 +1890,7 @@ err:
 static void uvc_events_process(struct uvc_device *dev)
 {
     struct v4l2_event v4l2_event;
-    struct uvc_event *uvc_event = (void *)&v4l2_event.u.data;
+    struct uvc_event *uvc_event1 = (uvc_event *)&v4l2_event.u.data;
     struct uvc_request_data resp;
     int ret;
 
@@ -1909,11 +1915,11 @@ static void uvc_events_process(struct uvc_device *dev)
         return;
 
     case UVC_EVENT_SETUP:
-        uvc_events_process_setup(dev, &uvc_event->req, &resp);
+        uvc_events_process_setup(dev, &uvc_event1->req, &resp);
         break;
 
     case UVC_EVENT_DATA:
-        ret = uvc_events_process_data(dev, &uvc_event->data);
+        ret = uvc_events_process_data(dev, &uvc_event1->data);
         if (ret < 0)
             break;
         return;
@@ -2122,7 +2128,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
 
-            uvc_io_method = atoi(optarg);
+            uvc_io_method = static_cast<io_method>(atoi(optarg));
             printf("UVC: IO method requested is %s\n", (uvc_io_method == IO_METHOD_MMAP) ? "MMAP" : "USER_PTR");
             break;
 
@@ -2141,7 +2147,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
 
-            speed = atoi(optarg);
+            speed = static_cast<usb_device_speed>(atoi(optarg));
             break;
 
         case 't':

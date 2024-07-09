@@ -13,6 +13,10 @@
 #ifndef _UVC_GADGET_H_
 #define _UVC_GADGET_H_
 
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
 #include <linux/ioctl.h>
 #include <linux/types.h>
 #include <linux/usb/ch9.h>
