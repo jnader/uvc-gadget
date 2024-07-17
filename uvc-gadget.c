@@ -576,18 +576,19 @@ static int v4l2_process_data(struct v4l2_device *dev)
     }
 
     // Convert V4L2 buffer to OpenCV Mat
-    cv::Mat frame_gray;
+    cv::Mat frame_gray, frame_rgb;
     // auto now = std::chrono::system_clock::now();
 
-    cv::Mat frame_rgb = v4l2_buffer_to_mat_libjpeg(dev, &vbuf);
+    cv::Mat frame_bgr = v4l2_buffer_to_mat_libjpeg(dev, &vbuf);
     auto now1 = std::chrono::system_clock::now();
     const std::time_t t_c = std::chrono::system_clock::to_time_t(now1);
     std::string datetime(std::ctime(&t_c));
 
+    cv::cvtColor(frame_bgr, frame_rgb, cv::COLOR_BGR2RGB);
     cv::putText(frame_rgb, datetime.substr(0, datetime.size() - 1), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0), 2);
     // auto now2 = std::chrono::system_clock::now();
 
-    cv::cvtColor(frame_rgb, frame_gray, cv::COLOR_RGB2GRAY);
+    cv::cvtColor(frame_rgb, frame_gray, cv::COLOR_BGR2GRAY);
     // auto now3 = std::chrono::system_clock::now();
 
     std::vector<cv::Rect> faces;
