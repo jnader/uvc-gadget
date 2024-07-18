@@ -134,8 +134,8 @@ static const struct uvc_frame_info uvc_frames_yuyv[] = {
         {666666, 10000000, 50000000, 0},
     },
     {
-        1280,
-        720,
+        1536,
+        864,
         {50000000, 0},
     },
     {
@@ -154,8 +154,8 @@ static const struct uvc_frame_info uvc_frames_mjpeg[] = {
         {666666, 10000000, 50000000, 0},
     },
     {
-        1280,
-        720,
+        1536,
+        864,
         {50000000, 0},
     },
     {
@@ -2278,7 +2278,7 @@ static void usage(const char *argv0)
     fprintf(stderr,
             " -r <resolution> Select frame resolution:\n\t"
             "0 = 360p, VGA (640x360)\n\t"
-            "1 = 720p, WXGA (1280x720)\n");
+            "1 = 864p, WXGA (1536x864)\n");
     fprintf(stderr,
             " -s <speed>	Select USB bus speed (b/w 0 and 2)\n\t"
             "0 = Full Speed (FS)\n\t"
@@ -2431,8 +2431,8 @@ int main(int argc, char *argv[])
          */
         CLEAR(fmt);
         fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        fmt.fmt.pix.width = (default_resolution == 0) ? 640 : 1280;
-        fmt.fmt.pix.height = (default_resolution == 0) ? 360 : 720;
+        fmt.fmt.pix.width = (default_resolution == 0) ? 640 : 1536;
+        fmt.fmt.pix.height = (default_resolution == 0) ? 360 : 864;
         fmt.fmt.pix.sizeimage = (default_format == 0) ? (fmt.fmt.pix.width * fmt.fmt.pix.height * 2)
                                                       : (fmt.fmt.pix.width * fmt.fmt.pix.height * 1.5);
         fmt.fmt.pix.pixelformat = (default_format == 0) ? V4L2_PIX_FMT_YUYV : V4L2_PIX_FMT_MJPEG;
@@ -2460,8 +2460,8 @@ int main(int argc, char *argv[])
     }
 
     /* Set parameters as passed by user. */
-    udev->width = (default_resolution == 0) ? 640 : 1280;
-    udev->height = (default_resolution == 0) ? 360 : 720;
+    udev->width = (default_resolution == 0) ? 640 : 1536;
+    udev->height = (default_resolution == 0) ? 360 : 864;
     udev->imgsize = (default_format == 0) ? (udev->width * udev->height * 2) : (udev->width * udev->height * 1.5);
     udev->fcc = V4L2_PIX_FMT_RGB24; //(default_format == 0) ? V4L2_PIX_FMT_YUYV : V4L2_PIX_FMT_MJPEG;
     udev->io = uvc_io_method;
